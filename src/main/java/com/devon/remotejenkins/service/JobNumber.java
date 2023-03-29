@@ -3,6 +3,8 @@ package com.devon.remotejenkins.service;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,10 +15,20 @@ import java.util.ArrayList;
 @Service
 public class JobNumber {
 
+    @Value("${jenkins.username}")
+    private String userName;
+    @Value("${jenkins.password}")
+    private String password;
+    @Value("${jenkins.url}")
+    private  String jenkinsBaseURL;
+
+
+    @Autowired
+    private  RestTemplate restTemplate;
+
     public ResponseEntity<ArrayList<Integer>> fetchJObNUmber(String name){
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8585/job/"+name+"/api/json?tree=builds[number]";
-        String auth = "ajayabhinandan:Mar@2023#123";
+        String url = jenkinsBaseURL+"/job/"+name+"/api/json?tree=builds[number]";
+        String auth = userName+":"+password;
         byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.US_ASCII));
         String authHeader = "Basic " + new String(encodedAuth);
         HttpHeaders headers = new HttpHeaders();
