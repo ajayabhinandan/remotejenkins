@@ -1,4 +1,4 @@
-package com.devon.remotejenkins;
+package com.devon.remotejenkins.dto;
 
 public class JenkinsJob {
     private String _class;
