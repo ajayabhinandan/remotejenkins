@@ -2,10 +2,7 @@ package com.devon.remotejenkins.controller;
 
 
 import com.devon.remotejenkins.dto.JenkinsJob;
-import com.devon.remotejenkins.service.ConsoleOutput;
-import com.devon.remotejenkins.service.JenkinsJobService;
-import com.devon.remotejenkins.service.JenkinsService;
-import com.devon.remotejenkins.service.JobNumber;
+import com.devon.remotejenkins.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +20,9 @@ public class JenkinsController {
     ConsoleOutput consoleOutput;
     @Autowired
     JobNumber jobNumber;
+
+    @Autowired
+    BuildDetailsService buildDetailsService;
 
     @PutMapping("/build")
     public ResponseEntity<String> remoteTrigger(@RequestParam("token") String token,
@@ -45,6 +45,12 @@ public class JenkinsController {
     @GetMapping("/jobnumber")
     public ResponseEntity<ArrayList<Integer>> getJobNumber(@RequestParam("name") String name){
         return jobNumber.fetchJObNUmber(name);
+    }
+
+    @GetMapping("/builddetails")
+    public ResponseEntity<String> getJobDetails(@RequestParam("buildName") String buildName,
+                                                @RequestParam("buildNumber") Integer buildNumber){
+        return new ResponseEntity<>(buildDetailsService.fetchJobDetails(buildName, buildNumber), HttpStatus.OK);
     }
 
 }
