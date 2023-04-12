@@ -1,7 +1,9 @@
 package com.devon.remotejenkins.service;
 
+import com.devon.remotejenkins.dto.JobDetails;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,8 +24,11 @@ public class BuildDetailsService {
     private String password;
     @Value("${jenkins.url}")
     private  String jenkinsBaseURL;
-    public String fetchJobDetails(String buildName, Integer buildNumber){
-        RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private RestTemplate restTemplate;
+
+    public JobDetails fetchJobDetails(String buildName, Integer buildNumber){
+
         String url = jenkinsBaseURL+"/job/"+buildName+"/"+buildNumber+"/api/json?pretty=true";
         String auth = userName+":"+password;
         byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.US_ASCII));
@@ -35,9 +40,16 @@ public class BuildDetailsService {
         ResponseEntity<String> stringResponseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
         String response=stringResponseEntity.getBody();
         JSONObject obj = new JSONObject(response);
+        System.out.println(obj);
         String status=obj.getString("result");
         System.out.println(status);
-        return status;
+
+        String consoleUrl = jenkinsBaseURL+"/job/"+buildName+"/"+buildNumber+"/consoleText";
+        ResponseEntity<String> stringResponseEntity1 = restTemplate.exchange(consoleUrl, HttpMethod.GET, entity, String.class);
+        String response1=stringResponseEntity1.getBody();
+        JobDetails jobDetails = new JobDetails(status,response1);
+
+        return jobDetails;
 
     }
 
